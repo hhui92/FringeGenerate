@@ -152,18 +152,18 @@ def compute_point_cloud(pha, config: Dict[str, Any]):
     # Build batched 3×3 matrices A and RHS b for every pixel
     A = np.zeros((height, width, 3, 3), dtype=np.float64)
     b = np.zeros((height, width, 3), dtype=np.float64)
-    A[..., 0, 0] = Kc[0, 0] - Kc[2, 0] * uc
-    A[..., 0, 1] = Kc[0, 1] - Kc[2, 1] * uc
-    A[..., 0, 2] = Kc[0, 2] - Kc[2, 2] * uc
-    A[..., 1, 0] = Kc[1, 0] - Kc[2, 0] * vc
-    A[..., 1, 1] = Kc[1, 1] - Kc[2, 1] * vc
-    A[..., 1, 2] = Kc[1, 2] - Kc[2, 2] * vc
-    A[..., 2, 0] = Ap[0, 0] - Ap[2, 0] * up
-    A[..., 2, 1] = Ap[0, 1] - Ap[2, 1] * up
-    A[..., 2, 2] = Ap[0, 2] - Ap[2, 2] * up
-    b[..., 0] = Kc[2, 3] * uc - Kc[0, 3]
-    b[..., 1] = Kc[2, 3] * vc - Kc[1, 3]
-    b[..., 2] = Ap[2, 3] * up - Ap[0, 3]
+    A[:, :, 0, 0] = Ac[0, 0] - Ac[2, 0] * uc
+    A[:, :, 0, 1] = Ac[0, 1] - Ac[2, 1] * uc
+    A[:, :, 0, 2] = Ac[0, 2] - Ac[2, 2] * uc
+    A[:, :, 1, 0] = Ac[1, 0] - Ac[2, 0] * vc
+    A[:, :, 1, 1] = Ac[1, 1] - Ac[2, 1] * vc
+    A[:, :, 1, 2] = Ac[1, 2] - Ac[2, 2] * vc
+    A[:, :, 2, 0] = Ap[0, 0] - Ap[2, 0] * up
+    A[:, :, 2, 1] = Ap[0, 1] - Ap[2, 1] * up
+    A[:, :, 2, 2] = Ap[0, 2] - Ap[2, 2] * up
+    b[:, :, 0] = Ac[2, 3] * uc - Ac[0, 3]
+    b[:, :, 1] = Ac[2, 3] * vc - Ac[1, 3]
+    b[:, :, 2] = Ap[2, 3] * up - Ap[0, 3]
 
     A += 1e-8 * np.eye(3).reshape(1, 1, 3, 3)
     xyz = np.linalg.solve(A.reshape(-1, 3, 3), b.reshape(-1, 3)).reshape(height, width, 3)
