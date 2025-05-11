@@ -165,7 +165,6 @@ def compute_point_cloud(pha, config: Dict[str, Any]):
     b[:, :, 1] = Ac[2, 3] * vc - Ac[1, 3]
     b[:, :, 2] = Ap[2, 3] * up - Ap[0, 3]
 
-    # 添加一个小的正则项以确保矩阵可逆
     a = A + 1e-8 * np.eye(3).reshape(1, 1, 3, 3)
 
     a_flat = a.reshape(-1, 3, 3)          # (N,3,3)
