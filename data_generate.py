@@ -165,9 +165,20 @@ def compute_point_cloud(pha, config: Dict[str, Any]):
     b[:, :, 1] = Ac[2, 3] * vc - Ac[1, 3]
     b[:, :, 2] = Ap[2, 3] * up - Ap[0, 3]
 
-    A += 1e-8 * np.eye(3).reshape(1, 1, 3, 3)
-    xyz = np.linalg.solve(A.reshape(-1, 3, 3), b.reshape(-1, 3)).reshape(height, width, 3)
-    return xyz * valid_mask[..., None]
+    # 添加一个小的正则项以确保矩阵可逆
+    a = A + 1e-8 * np.eye(3).reshape(1, 1, 3, 3)
+
+    a_flat = a.reshape(-1, 3, 3)          # (N,3,3)
+    b_flat = b.reshape(-1, 3, 1)              # (N,3,1)
+
+    # Invert each 3×3 block and multiply once:  X = A⁻¹ · b
+    invA = np.linalg.inv(a_flat)            # (N,3,3)
+    xyz_w_flat = (invA @ b_flat)              # (N,3,1)
+
+    # Back to (H,W,3)
+    xyz_w = xyz_w_flat.reshape(height, width, 3)
+    xyz_points = xyz_w * valid_mask[..., None]
+    return xyz_points
 
 
 def bilinear_interpolate(im: np.ndarray, x: np.ndarray, y: np.ndarray) -> np.ndarray:
